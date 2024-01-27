@@ -1,6 +1,6 @@
-const { Joi } = require('celebrate');
-Joi.objectId = require('joi-objectid')(Joi);
-const { urlRegular } = require('./constants');
+const { Joi } = require("celebrate");
+Joi.objectId = require("joi-objectid")(Joi);
+const { urlRegular } = require("./constants");
 
 module.exports = Object.freeze({
   JoiBodyEmailPassword: {
