@@ -1,8 +1,8 @@
 const isEmail = require("validator/lib/isEmail");
-const mongoose = require("mongoose");
-
 const bcrypt = require("bcryptjs");
 const UnauthorizedError = require("../utils/errors/unauthorized-err");
+const mongoose = require("mongoose");
+
 
 const userSchema = new mongoose.Schema(
   {

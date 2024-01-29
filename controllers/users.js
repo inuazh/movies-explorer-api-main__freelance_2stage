@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const mongoose = require("mongoose");
 const User = require("../models/user");
 require("dotenv").config();
 const NotFoundError = require("../utils/errors/not-found-err");
 const BadRequestError = require("../utils/errors/bad-request-err");
+const mongoose = require("mongoose");
 const ConflictError = require("../utils/errors/conflict-err");
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -84,7 +84,7 @@ module.exports.updateUserInfo = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError("Пользователь по указанному id не найден");
+        throw new NotFoundError("Пользователь не найден");
       }
       res.send({ user });
     })

@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
-const NotFoundError = require("../utils/errors/not-found-err");
 const BadRequestError = require("../utils/errors/bad-request-err");
 const ForbiddenError = require("../utils/errors/forbidden-err");
 const Movie = require("../models/movie");
+const NotFoundError = require("../utils/errors/not-found-err");
+
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
@@ -59,7 +60,7 @@ module.exports.deleteMovieById = (req, res, next) => {
     .populate(["owner"])
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError("Фильм не найден");
+        throw new NotFoundError("Фильм удален");
       } else if (!(req.user._id === movie.owner._id.toString())) {
         throw new ForbiddenError("Запрещено удалять чужие фильмы");
       } else {

@@ -2,13 +2,13 @@ const router = require("express").Router();
 
 const { celebrate } = require("celebrate");
 const { errors } = require("celebrate");
-const { requestLogger, errorLogger } = require("../middlewares/logger");
-
 const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
 const { rateLimiter } = require("../middlewares/rateLimiter");
 const centralizedErrorHandler = require("../middlewares/centralizedErrorHandler");
 const NotFoundError = require("../utils/errors/not-found-err");
+const { requestLogger, errorLogger } = require("../middlewares/logger");
+
 
 const {
   JoiBodyEmailPassword,
@@ -34,7 +34,7 @@ router.use("/users", require("./users"));
 router.use("/movies", require("./movies"));
 
 router.use("*", (req, res, next) =>
-  next(new NotFoundError("Страница не найдена"))
+  next(new NotFoundError("Запрашиваемый адрес не найден"))
 );
 
 router.use(errorLogger);

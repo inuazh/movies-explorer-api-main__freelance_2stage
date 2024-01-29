@@ -7,66 +7,66 @@ const movieSchema = new mongoose.Schema(
       type: String,
       required: [
         true,
-        'Поле "country" (страна создания фильма) должно быть заполнено',
+        'Поле "country" не заполнено',
       ],
     },
     director: {
       type: String,
       required: [
         true,
-        'Поле "director" (режиссёр фильма) должно быть заполнено',
+        'Поле "director" не заполнено',
       ],
     },
     duration: {
       type: Number,
       required: [
         true,
-        'Поле "duration" (длительность фильма) должно быть заполнено',
+        'Поле "duration" не заполнено',
       ],
     },
     year: {
       type: String,
       required: [
         true,
-        'Поле "year" (год выпуска фильма) должно быть заполнено',
+        'Поле "year" не заполнено',
       ],
     },
     description: {
       type: String,
       required: [
         true,
-        'Поле "description" (описание фильма) должно быть заполнено',
+        'Поле "description" не заполнено',
       ],
     },
     image: {
       type: String,
       required: [
         true,
-        'Поле "image" (ссылка на постер к фильму) должно быть заполнено',
+        'Поле "image" не заполнено',
       ],
       validate: [
         isURL,
-        'Поле "image" (ссылка на постер к фильму) неверно заполнено',
+        'Поле "image" неверно заполнено',
       ],
     },
     trailerLink: {
       type: String,
       required: [
         true,
-        'Поле "trailerLink" (ссылка на трейлер фильма) должно быть заполнено',
+        'Поле "trailerLink"  не заполнено',
       ],
       validate: [
         isURL,
-        'Поле "trailerLink" (ссылка на трейлер фильма) неверно заполнено',
+        'Поле "trailerLink"  неверно заполнено',
       ],
     },
     thumbnail: {
       type: String,
       required: [
         true,
-        'Поле "thumbnail" (постер к фильму) должно быть заполнено',
+        'Поле "thumbnail" не заполнено',
       ],
-      validate: [isURL, 'Поле "thumbnail" (постер к фильму) неверно заполнено'],
+      validate: [isURL, 'Поле "thumbnail" неверно заполнено'],
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -75,20 +75,20 @@ const movieSchema = new mongoose.Schema(
     },
     movieId: {
       type: Number,
-      required: [true, 'Поле "movieId" должно быть заполнено'],
+      required: [true, 'Поле "movieId" не заполнено'],
     },
     nameRU: {
       type: String,
       required: [
         true,
-        'Поле "nameRU" (название фильма на русском языке) должно быть заполнено',
+        'Поле "nameRU" не заполнено',
       ],
     },
     nameEN: {
       type: String,
       required: [
         true,
-        'Поле "nameEN" (название фильма на английском языке) должно быть заполнено',
+        'Поле "nameEN" не заполнено',
       ],
     },
   },
