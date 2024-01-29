@@ -9,6 +9,6 @@
 IP 158.160.141.27
 
 Frontend 
-Backend 
+Backend https://api.filippovdo.diplom.nomoredomainsmonster.ru
 
 Репозиторий frontend: https://github.com/filippovdo/movies-explorer-frontend
