@@ -6,7 +6,7 @@ const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
 const { rateLimiter } = require("../middlewares/rateLimiter");
 const centralizedErrorHandler = require("../middlewares/centralizedErrorHandler");
-const NotFoundError = require("../utils/errors/not-found-err");
+const NotFoundError = require("../utils/errors/NotFoundError");
 const { requestLogger, errorLogger } = require("../middlewares/logger");
 
 

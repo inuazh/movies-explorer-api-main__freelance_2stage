@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const BadRequestError = require("../utils/errors/bad-request-err");
-const ForbiddenError = require("../utils/errors/forbidden-err");
+const BadRequestError = require("../utils/errors/BadRequestError");
+const ForbiddenError = require("../utils/errors/ForbiddenError");
 const Movie = require("../models/movie");
-const NotFoundError = require("../utils/errors/not-found-err");
+const NotFoundError = require("../utils/errors/NotFoundError");
 
 
 module.exports.getMovies = (req, res, next) => {
