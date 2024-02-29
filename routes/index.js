@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { celebrate } = require("celebrate");
+const cors = require('../middlewares/cors');
 const { errors } = require("celebrate");
 const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
@@ -13,6 +14,7 @@ const {
   JoiBodyEmailPassword,
   JoiBodyEmailPasswordName,
 } = require("../utils/validationConstants");
+router.use(cors);
 
 router.use(requestLogger);
 
