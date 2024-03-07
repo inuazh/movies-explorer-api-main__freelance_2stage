@@ -1,10 +1,9 @@
-const router = require("express").Router();
-const { celebrate } = require("celebrate");
+const router = require('express').Router();
+const { validateEditUser } = require('../middlewares/celebrate');
 
-const { JoiBodyNameEmail } = require("../utils/validationConstants");
-const { aboutUser, updateUserInfo } = require("../controllers/users");
+const { getUserInfo, editUser } = require('../controllers/users');
 
-router.get("/me", aboutUser);
-router.patch("/me", celebrate(JoiBodyNameEmail), updateUserInfo);
+router.get('/me', getUserInfo);
+router.patch('/me', validateEditUser, editUser);
 
 module.exports = router;

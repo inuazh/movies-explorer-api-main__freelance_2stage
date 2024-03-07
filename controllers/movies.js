@@ -1,19 +1,21 @@
-const mongoose = require("mongoose");
-const BadRequestError = require("../utils/errors/BadRequestError");
-const ForbiddenError = require("../utils/errors/ForbiddenError");
-const Movie = require("../models/movie");
-const NotFoundError = require("../utils/errors/NotFoundError");
-
+const httpConstants = require('http2').constants;
+const Movie = require('../models/movie');
+const { BadRequest } = require('../errors/bad-request');
+const { NotFoundError } = require('../errors/not-found-err');
+const { Forbidden } = require('../errors/forbidden');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .populate(["owner"])
-    .then((movies) => res.send(movies))
+    .then((movies) => {
+      res.send(movies);
+    })
     .catch(next);
 };
 
-module.exports.createMovie = (req, res, next) => {
+module.exports.postMovie = (req, res, next) => {
   const {
+    nameRU,
+    movieId,
     country,
     director,
     duration,
@@ -21,14 +23,13 @@ module.exports.createMovie = (req, res, next) => {
     description,
     image,
     trailerLink,
-    nameRU,
-    nameEN,
     thumbnail,
-    movieId,
+    nameEN,
   } = req.body;
-  const userId = req.user._id;
 
   Movie.create({
+    nameRU,
+    movieId,
     country,
     director,
     duration,
@@ -36,41 +37,40 @@ module.exports.createMovie = (req, res, next) => {
     description,
     image,
     trailerLink,
-    nameRU,
-    nameEN,
     thumbnail,
-    movieId,
-    owner: userId,
+    nameEN,
+    owner: req.user._id,
   })
-    .then((movie) => res.status(201).send(movie))
+    .then((movie) => {
+      res.status(httpConstants.HTTP_STATUS_CREATED).send(movie);
+    })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join("; ");
-        next(new BadRequestError(message));
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные'));
       } else {
         next(err);
       }
     });
 };
 
-module.exports.deleteMovieById = (req, res, next) => {
-  Movie.findById({ _id: req.params.movieId })
-    .populate(["owner"])
+module.exports.deleteMovie = (req, res, next) => {
+  Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError("Фильм удален");
-      } else if (!(req.user._id === movie.owner._id.toString())) {
-        throw new ForbiddenError("Запрещено удалять чужие фильмы");
-      } else {
-        movie
-          .deleteOne()
-          .then((myMovie) => {
-            res.status(200).send({ myMovie });
-          })
-          .catch(next);
+        throw new NotFoundError('Фильм не найден');
       }
+      if (movie.owner._id.toString() !== req.user._id) {
+        throw new Forbidden('Невозможно удалить данные другого пользователя');
+      }
+      return Movie.deleteOne(movie).then(() => {
+        res.send({ message: 'Фильм удален' });
+      });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };

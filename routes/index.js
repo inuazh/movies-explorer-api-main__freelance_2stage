@@ -1,47 +1,21 @@
-const router = require("express").Router();
-const { celebrate } = require("celebrate");
-const cors = require('../middlewares/cors');
-const { errors } = require("celebrate");
-const { login, createUser } = require("../controllers/users");
-const auth = require("../middlewares/auth");
-const { rateLimiter } = require("../middlewares/rateLimiter");
-const centralizedErrorHandler = require("../middlewares/centralizedErrorHandler");
-const NotFoundError = require("../utils/errors/NotFoundError");
-const { requestLogger, errorLogger } = require("../middlewares/logger");
+const router = require('express').Router();
 
-
+const { auth } = require('../middlewares/auth');
+const { createUser, login } = require('../controllers/users');
 const {
-  JoiBodyEmailPassword,
-  JoiBodyEmailPasswordName,
-} = require("../utils/validationConstants");
-router.use(cors);
+  validateLogin,
+  validateCreateUser,
+} = require('../middlewares/celebrate');
+const { NotFoundError } = require('../errors/not-found-err');
 
-router.use(requestLogger);
-
-router.use(rateLimiter);
-
-router.get("/crash-test", () => {
-  setTimeout(() => {
-    throw new Error("Сервер сейчас упадёт");
-  }, 0);
-});
-
-router.post("/signin", celebrate(JoiBodyEmailPassword), login);
-router.post("/signup", celebrate(JoiBodyEmailPasswordName), createUser);
+router.post('/signup', validateCreateUser, createUser);
+router.post('/signin', validateLogin, login);
 
 router.use(auth);
 
-router.use("/users", require("./users"));
-router.use("/movies", require("./movies"));
+router.use('/users', require('./users'));
+router.use('/movies', require('./movies'));
 
-router.use("*", (req, res, next) =>
-  next(new NotFoundError("Запрашиваемый адрес не найден"))
-);
-
-router.use(errorLogger);
-
-router.use(errors());
-
-router.use(centralizedErrorHandler);
+router.use((req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 module.exports = router;

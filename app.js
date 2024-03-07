@@ -1,28 +1,31 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser");
-require("dotenv").config();
-const helmet = require("helmet");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const helmet = require('helmet');
+const { errors } = require('celebrate');
+const cors = require('cors');
+const { errorHandler } = require('./middlewares/errorHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const router = require('./routes/index');
 
-const { PORT = 3000, NODE_ENV, DB_URL } = process.env;
+const { PORT = 3000 } = process.env;
+const { DATA_BASE = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
+
 const app = express();
 
-mongoose.connect(
-  NODE_ENV === "production" ? DB_URL : "mongodb://127.0.0.1:27017/bitfilmsdb",
-  {
-    useNewUrlParser: true,
-  }
-);
+app.use(cors());
 
-app.use(helmet());
+mongoose.connect(DATA_BASE, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
+app.use(requestLogger);
+app.use(router);
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
-app.use(cookieParser());
-
-app.use(require("./routes/index"));
-
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT);

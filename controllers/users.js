@@ -1,100 +1,93 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const User = require("../models/user");
-require("dotenv").config();
-const NotFoundError = require("../utils/errors/NotFoundError");
-const BadRequestError = require("../utils/errors/BadRequestError");
-const mongoose = require("mongoose");
-const ConflictError = require("../utils/errors/ConflictError");
+const httpConstants = require('http2').constants;
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const { BadRequest } = require('../errors/bad-request');
+const { Conflict } = require('../errors/conflict');
+const { NotAuthorized } = require('../errors/not-authorized');
+const { NotFoundError } = require('../errors/not-found-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
-
-module.exports.aboutUser = (req, res, next) => {
-  const { _id } = req.user;
-  User.findById(_id)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError("Нет пользователя с таким id");
-      }
-      res.status(200).send({ user });
-    })
-    .catch(next);
-};
-
-module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === "production" ? JWT_SECRET : "super-strong-secret",
-        { expiresIn: "7d" }
-      );
-      res
-        .status(200)
-        .cookie("jwt", token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-          sameSite: "none",
-          secure: true
-        })
-        .send({ email });
-    })
-    .catch(next);
-};
+const secretKey = 'SECRET_KEY';
 
 module.exports.createUser = (req, res, next) => {
-  const { name, email, password } = req.body;
-
+  const { email, password, name } = req.body;
   bcrypt
     .hash(password, 10)
     .then((hash) =>
       User.create({
-        name,
         email,
         password: hash,
+        name,
       })
     )
     .then((user) => {
-      res.status(200).send({ data: user });
+      const newUser = user.toObject();
+      delete newUser.password;
+      return res.status(httpConstants.HTTP_STATUS_CREATED).send(newUser);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join("; ");
-        next(new BadRequestError(message));
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные'));
       } else if (err.code === 11000) {
-        next(new ConflictError("Email уже зарегистрирован"));
+        next(new Conflict('Пользователь с таким email уже существует'));
       } else {
         next(err);
       }
     });
 };
 
-module.exports.updateUserInfo = (req, res, next) => {
-  const { name, email } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, email },
-    {
-      new: true,
-      runValidators: true,
-    }
-  )
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findOne({ email })
+    .select('+password')
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError("Пользователь не найден");
+      if (!user || !bcrypt.compareSync(password, user.password)) {
+        throw new NotAuthorized('Вы ввели неправильный логин или пароль');
       }
-      res.send({ user });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : secretKey,
+        {
+          expiresIn: '7d',
+        }
+      );
+
+      res.send({ token });
+    })
+    .catch(next);
+};
+
+module.exports.getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => {
+      res.send(user);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join("; ");
-        next(new BadRequestError(message));
+      if (err.name === 'DocumentNotFoundError') {
+        next(new NotFoundError());
+      } else {
+        next(err);
+      }
+    });
+};
+
+module.exports.editUser = (req, res, next) => {
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name: req.body.name, email: req.body.email },
+    { new: 'true', runValidators: true }
+  )
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequest());
+      } else if (err.code === 11000) {
+        next(new Conflict());
       } else {
         next(err);
       }

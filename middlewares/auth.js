@@ -1,28 +1,28 @@
-const token = require("jsonwebtoken");
-require("dotenv").config();
-const UnauthorizedError = require("../utils/errors/UnauthorizedError");
+const jwt = require('jsonwebtoken');
+const { NotAuthorized } = require('../errors/not-authorized');
 
+const secretKey = 'SECRET_KEY';
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-module.exports = (req, res, next) => {
-  const { jwt } = req.cookies;
+const auth = (req, res, next) => {
+  const { authorization } = req.headers;
 
-  if (!jwt) {
-    return next(new UnauthorizedError("Необходима авторизация"));
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return next(new NotAuthorized('Необходима авторизация 1'));
   }
 
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
-    payload = token.verify(
-      jwt,
-      NODE_ENV === "production" ? JWT_SECRET : "super-strong-secret"
-    );
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : secretKey);
   } catch (err) {
-    return next(new UnauthorizedError("Необходима авторизация"));
+    return next(new NotAuthorized('Необходима авторизация 2'));
   }
 
   req.user = payload;
 
   return next();
 };
+
+module.exports = { auth };

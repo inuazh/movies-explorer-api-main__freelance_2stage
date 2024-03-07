@@ -1,100 +1,113 @@
-const mongoose = require("mongoose");
-const isURL = require("validator/lib/isURL");
+const mongoose = require('mongoose');
 
 const movieSchema = new mongoose.Schema(
   {
     country: {
       type: String,
-      required: [
-        true,
-        'Поле "country" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      minlength: [2, 'Минимум 2 символа'],
+      maxlength: [500, 'Максимум 500 символов'],
     },
     director: {
       type: String,
-      required: [
-        true,
-        'Поле "director" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      minlength: [2, 'Минимум 2 символа'],
+      maxlength: [500, 'Максимум 500 символов'],
     },
     duration: {
       type: Number,
-      required: [
-        true,
-        'Поле "duration" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
     },
     year: {
       type: String,
-      required: [
-        true,
-        'Поле "year" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
     },
     description: {
       type: String,
-      required: [
-        true,
-        'Поле "description" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      minlength: [2, 'Минимум 2 символа'],
+      maxlength: [5000, 'Максимум 5000 символов'],
     },
     image: {
       type: String,
-      required: [
-        true,
-        'Поле "image" не заполнено',
-      ],
-      validate: [
-        isURL,
-        'Поле "image" неверно заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      validate: {
+        validator(url) {
+          const urlPattern = new RegExp(
+            '^(https?:\\/\\/)?' +
+              '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+              '((\\d{1,3}\\.){3}\\d{1,3}))' +
+              '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+              '(\\?[;&a-z\\d%_.~+=-]*)?' +
+              '(\\#[-a-z\\d_]*)?$',
+            'i'
+          );
+          return urlPattern.test(url);
+        },
+        message: 'Введите адрес ссылки',
+      },
     },
     trailerLink: {
       type: String,
-      required: [
-        true,
-        'Поле "trailerLink"  не заполнено',
-      ],
-      validate: [
-        isURL,
-        'Поле "trailerLink"  неверно заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      validate: {
+        validator(url) {
+          const urlPattern = new RegExp(
+            '^(https?:\\/\\/)?' +
+              '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+              '((\\d{1,3}\\.){3}\\d{1,3}))' +
+              '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+              '(\\?[;&a-z\\d%_.~+=-]*)?' +
+              '(\\#[-a-z\\d_]*)?$',
+            'i'
+          );
+          return urlPattern.test(url);
+        },
+        message: 'Введите адрес ссылки',
+      },
     },
     thumbnail: {
       type: String,
-      required: [
-        true,
-        'Поле "thumbnail" не заполнено',
-      ],
-      validate: [isURL, 'Поле "thumbnail" неверно заполнено'],
+      required: [true, 'Обязательнрое поле'],
+      validate: {
+        validator(url) {
+          const urlPattern = new RegExp(
+            '^(https?:\\/\\/)?' +
+              '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+              '((\\d{1,3}\\.){3}\\d{1,3}))' +
+              '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+              '(\\?[;&a-z\\d%_.~+=-]*)?' +
+              '(\\#[-a-z\\d_]*)?$',
+            'i'
+          );
+          return urlPattern.test(url);
+        },
+        message: 'Введите адрес ссылки',
+      },
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: 'user',
       required: true,
     },
     movieId: {
       type: Number,
-      required: [true, 'Поле "movieId" не заполнено'],
+      required: true,
     },
     nameRU: {
       type: String,
-      required: [
-        true,
-        'Поле "nameRU" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      minlength: [2, 'Минимум 2 символа'],
+      maxlength: [1000, 'Максимум 1000 символов'],
     },
     nameEN: {
       type: String,
-      required: [
-        true,
-        'Поле "nameEN" не заполнено',
-      ],
+      required: [true, 'Обязательнрое поле'],
+      minlength: [2, 'Минимум 2 символа'],
+      maxlength: [1000, 'Максимум 1000 символов'],
     },
   },
-  {
-    versionKey: false,
-  }
+  { versionKey: false }
 );
 
-module.exports = mongoose.model("movie", movieSchema);
+module.exports = mongoose.model('movie', movieSchema);
