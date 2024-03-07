@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return next(new NotAuthorized('Необходима авторизация 1'));
+    return next(new NotAuthorized('Необходима авторизация'));
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -17,7 +17,7 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : secretKey);
   } catch (err) {
-    return next(new NotAuthorized('Необходима авторизация 2'));
+    return next(new NotAuthorized('Необходима авторизация'));
   }
 
   req.user = payload;
